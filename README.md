@@ -1,5 +1,5 @@
 # Simple To do list App
-This is an app programed py Python 3, using tkinter library.
+This is an app programed in Python 3, using tkinter library.
 ## Getting Started
 This application will help you to list your tasks, save your tasks for the next time you run an app and some basic feature of a Todo app.
 ### Prerequisites
