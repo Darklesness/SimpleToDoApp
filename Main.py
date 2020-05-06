@@ -1,112 +1,99 @@
-from Task import *
 from tkinter import *
 import tkinter.font as tkFont
 
 tasks = []
 
 def addTask():
-    message = task_input.get()
+    message = inp.get()
     for i in range(len(tasks)):
-        if (message in tasks[i].message) or message == '':
-            print("ENTER A VALUE PLS")
+        if (message == tasks[i] or message == ''):
             return
-    tasks.append(Task(message, "False"))
-    mylist.insert(END, " "*2 + message)
-    task_input.delete(0, END)
+    tasks.append(message)
+    my_list.insert(END, ' '*3 + message)
+    inp.delete(0, END)
     return
 
-def openTaskList():
-    try:
-        with open('TasksList.txt', 'r') as f:
-            for line in f:
-                try:
-                    message = line.split(':')[1]
-                    is_done = line.split(':')[0]
-                    mylist.insert(END, " "*2 + message)
-                    tasks.append(Task(message, is_done))
-                except IndexError:
-                    pass
-        print("Done!")
-        return
-    except FileNotFoundError:
-        with open('TasksList.txt', 'w'):
-            pass
-        return
-
-def saveTask():
-    with open('TasksList.txt', 'w') as f:
+def saveList():
+    with open("TodoList.txt", 'w') as f:
         for i in range(len(tasks)):
-            print("{}:{}".format(tasks[i].is_done, tasks[i].message), file=f)
-    print("Saved!")
+            print(tasks[i], file=f)
+    print("saved!!")
     return
 
-def clearTask():
+def delAll():
     tasks.clear()
-    mylist.delete(0, END)
+    my_list.delete(0, END)
     return
 
-def markAsDone():
-    mylist.delete(ANCHOR)
-    return
+def markDone():
+    value = my_list.get(my_list.curselection())[3:]
+    print(value)
+    if value in tasks:
+        my_list.delete(ANCHOR)
+        tasks.remove(value)
+        return
 
-def printMess():
-    if not not tasks:
-        for i in range(len(tasks)):
-            print(tasks[i].message)
-        print('-'*15)
-    return
+def loadTodoList():
+    # try to open file, if file does not exit, create file
+    try:        
+        with open("TodoList.txt", 'r') as f:
+            for message in f:
+                if message != '\n':
+                    tasks.append(message)
+                    my_list.insert(END, ' '*3 + message)
+        print("File loaded!!")
+
+    except FileNotFoundError:
+        with open("TodoList.txt", 'w') as f:
+            print("create new file")
+            return
 
 
-
-# Create work window and set it to 500 x 800 px
+# Create a 500 x 800 px window
 window = Tk()
-window.title("Simple To Do List")
+window.title("Todo List")
 window.geometry("517x800")
-window.resizable(0, 0) # Unresizeable =))
+window.resizable(0, 0) # Unable to resize window
 
+# Declare some font to use
 titleFont = tkFont.Font(family="Verdana", size=30)
-textFont = tkFont.Font(family="Verdana",size=10)
-inputFont = tkFont.Font(family="Verdana",size=13)
+textFont = tkFont.Font(family="Verdana", size=10)
+inpFont = tkFont.Font(family="Verdana", size=13)
 
-title_lable = Label(window, padx=0, pady=0, text="To Do List", font=titleFont)
-title_lable.place(x=145, y=0)
+titleLabel = Label(window, text="Simple To Do App", font=titleFont)
+titleLabel.pack()
 
+y_scrollbar = Scrollbar(window, orient="vertical")
+y_scrollbar.pack(side=RIGHT, fill=Y)
 
+x_scrollbar = Scrollbar(window, orient="horizontal")
+x_scrollbar.pack(side=BOTTOM, fill=X)
 
-w = Scrollbar(window)
-w.pack(side = RIGHT, fill=Y)
-ww = Scrollbar(window, orient='horizontal')
-ww.pack(side = BOTTOM, fill=X)
-mylist = Listbox(window, width=44, height=30, yscrollcommand = w.set, bg="#1b1b2f", font=inputFont, fg="white")
-mylist.place(x=5, y=50)
-w.config( command = mylist.yview )
-ww.config( command = mylist.xview )
-openTaskList()
+my_list = Listbox(window, width=44, height=30, font=inpFont, xscrollcommand=x_scrollbar.set, yscrollcommand=y_scrollbar.set, bg="#36382e", fg="#ede6e3")
+my_list.place(x=5, y=50)
 
+y_scrollbar.config(command=my_list.yview)
+x_scrollbar.config(command=my_list.xview)
 
+loadTodoList()
 
-temp_lable = Label(window, pady=5)
-temp_lable.place()
+inp = Entry(window, width=37, font=inpFont, bg="#36382e", fg="#e4e0de")
+inp.place(x=5, y=695)
 
-task_input = Entry(window, width=37, font=inputFont, fg="#ffffff", bg="#1b1b2f")
-task_input.place(x=5, y=708)
+add_task = Button(window, text="Add Task", font=textFont, command=lambda: addTask(), bg="#5bc3eb", fg="#36382e")
+add_task.place(x=422, y=692)
 
-add_task = Button(window, text="Add Task", fg="white", bg="#1f4068", font=textFont, command=lambda: addTask())
-add_task.place(x=422, y=705)
+save_list = Button(window, text="Save your to do list", font=textFont, command=lambda: saveList(), bg="#b0eacd", fg="#36382e")
+save_list.place(x=5, y=725)
 
-save_task = Button(window, text="Save your to do list", fg="black", bg="#66ff63", font=textFont, command=lambda: saveTask())
-save_task.place(x=5, y=740)
+del_all = Button(window, text="Delete all", font=textFont, command=lambda: delAll(), bg="#fd5e53", fg="#36382e")
+del_all.place(x=200, y=725)
 
-mark_as_done = Button(window, text="Mark as Done!", fg="white", bg="#1f4068", font=textFont, command=lambda: markAsDone())
-mark_as_done.place(x=220, y=740)
-
-clear_all_tasks = Button(window, text="Clear all tasks", fg="black", bg="#e43f5a", font=textFont, command=lambda: clearTask())
-clear_all_tasks.place(x=392, y=740)
-
-# printButt = Button(window, text="Print", fg="black", bg="#e43f5a", font=textFont, command=lambda: printMess())
-# printButt.place(x=200, y=200)
+mark_done = Button(window, text="Done!", font=textFont, command=lambda: markDone(), bg="#21bf73", fg="#36382e")
+mark_done.place(x=422, y=725)
 
 
 mainloop()
 
-saveTask()
+# to make sure that any changes are being saved
+saveList()
