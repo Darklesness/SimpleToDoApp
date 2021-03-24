@@ -1,7 +1,7 @@
 from tkinter import *
 import tkinter.font as tkFont
 
-tasks = []
+tasks = [
 
 def addTask():
     message = inp.get()
